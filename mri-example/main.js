@@ -78,6 +78,7 @@ function main() {
       gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     });
+    img.crossOrigin = "anonymous";
     img.src = url;
 
     return textureInfo;
@@ -88,7 +89,7 @@ function main() {
   ];
 
   var drawInfos = [];
-  var numToDraw = 9;
+  var numToDraw = 1;
   var speed = 60;
   for (var ii = 0; ii < numToDraw; ++ii) {
     var drawInfo = {
