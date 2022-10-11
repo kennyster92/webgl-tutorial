@@ -1,11 +1,29 @@
 @import url("../resources/webgl-tutorials.css");
 body {
-  margin: 0;
+  margin: 10;
 }
-canvas {
+
+#canvas {
   width: 500px;
   height: 500px;
-  /* width: 100vw;
-  height: 100vh; */
   display: block;
+}
+
+#operations-box {
+  margin-left: 10px;
+}
+
+.container-horiz {
+  display: flex;
+  flex-direction: row;
+}
+
+ul.no-bullets {
+  list-style-type: none; /* Remove bullets */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margins */
+}
+
+.margin-10 {
+  margin: 10px;
 }

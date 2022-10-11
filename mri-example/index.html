@@ -3,7 +3,29 @@
   <link rel="stylesheet" href="mystyle.css">
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+   <div class="container-horiz">
+      <canvas id="canvas"></canvas>
+      <div id="operations-box">
+         <h2>Measures</h2>
+         <ul class="no-bullets">
+            <li class="margin-10">
+               <button>2D angles</button>
+            </li>
+            <li class="margin-10">
+               <button>Distance</button>
+            </li>
+            <li class="margin-10">
+               <button>Area</button>
+            </li>
+            <li class="margin-10">
+               <button>Perimeter</button>
+            </li>
+         </ul>
+         <div class="margin-10">
+            Text to show
+         </div>
+      </div>
+   </div>
 <!-- vertex shader -->
 <script  id="drawImage-vertex-shader" type="x-shader/x-vertex">
 attribute vec4 a_position;
@@ -28,7 +50,8 @@ uniform sampler2D u_texture;
 void main() {
    gl_FragColor = texture2D(u_texture, v_texcoord);
 }
-</script><!--
+</script>
+<!--
 for most samples webgl-utils only provides shader compiling/linking and
 canvas resizing because why clutter the examples with code that's the same in every sample.
 See https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html
