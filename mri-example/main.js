@@ -9,6 +9,8 @@ function main() {
     return;
   }
 
+  var imagePath = 'https://upload.wikimedia.org/wikipedia/commons/b/b2/MRI_of_Human_Brain.jpg';
+
   // setup GLSL program
   var program = webglUtils.createProgramFromScripts(gl, ["drawImage-vertex-shader", "drawImage-fragment-shader"]);
 
@@ -58,7 +60,7 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D, tex);
     // Fill the texture with a 1x1 blue pixel.
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                  new Uint8Array([0, 0, 255, 255]));
+      new Uint8Array([0, 0, 255, 255]));
 
     // let's assume all images are not a power of 2
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -71,56 +73,20 @@ function main() {
       texture: tex,
     };
     var img = new Image();
-    img.addEventListener('load', function() {
-      textureInfo.width = img.width;
-      textureInfo.height = img.height;
+    img.addEventListener('load', function () {
+      textureInfo.width = canvas.width; // img.width;
+      textureInfo.height = canvas.height; // img.height;
 
       gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     });
+    img.crossOrigin = 'anonymous';
     img.src = url;
 
     return textureInfo;
   }
 
-  var textureInfos = [
-    loadImageAndCreateTextureInfo('https://upload.wikimedia.org/wikipedia/commons/b/b2/MRI_of_Human_Brain.jpg'),
-  ];
-
-  var drawInfos = [];
-  var numToDraw = 9;
-  var speed = 60;
-  for (var ii = 0; ii < numToDraw; ++ii) {
-    var drawInfo = {
-      x: Math.random() * gl.canvas.width,
-      y: Math.random() * gl.canvas.height,
-      dx: Math.random() > 0.5 ? -1 : 1,
-      dy: Math.random() > 0.5 ? -1 : 1,
-      xScale: Math.random() * 0.25 + 0.25,
-      yScale: Math.random() * 0.25 + 0.25,
-      textureInfo: textureInfos[Math.random() * textureInfos.length | 0],
-    };
-    drawInfos.push(drawInfo);
-  }
-
-  function update(deltaTime) {
-    drawInfos.forEach(function(drawInfo) {
-      drawInfo.x += drawInfo.dx * speed * deltaTime;
-      drawInfo.y += drawInfo.dy * speed * deltaTime;
-      if (drawInfo.x < 0) {
-        drawInfo.dx = 1;
-      }
-      if (drawInfo.x >= gl.canvas.width) {
-        drawInfo.dx = -1;
-      }
-      if (drawInfo.y < 0) {
-        drawInfo.dy = 1;
-      }
-      if (drawInfo.y >= gl.canvas.height) {
-        drawInfo.dy = -1;
-      }
-    });
-  }
+  var texInfo = loadImageAndCreateTextureInfo(imagePath);
 
   function draw() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -130,27 +96,19 @@ function main() {
 
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    drawInfos.forEach(function(drawInfo) {
-      var dstX      = drawInfo.x;
-      var dstY      = drawInfo.y;
-      var dstWidth  = drawInfo.textureInfo.width  * drawInfo.xScale;
-      var dstHeight = drawInfo.textureInfo.height * drawInfo.yScale;
+    var dstX = 0;
+    var dstY = 0;
+    var dstWidth = texInfo.width;
+    var dstHeight = texInfo.height;
 
-      drawImage(
-        drawInfo.textureInfo.texture,
-        drawInfo.textureInfo.width,
-        drawInfo.textureInfo.height,
-        dstX, dstY, dstWidth, dstHeight);
-    });
+    drawImage(
+      texInfo.texture,
+      texInfo.width,
+      texInfo.height,
+      dstX, dstY, dstWidth, dstHeight);
   }
 
-  var then = 0;
   function render(time) {
-    var now = time * 0.001;
-    var deltaTime = Math.min(0.1, now - then);
-    then = now;
-
-    update(deltaTime);
     draw();
 
     requestAnimationFrame(render);
@@ -160,8 +118,8 @@ function main() {
   // Unlike images, textures do not have a width and height associated
   // with them so we'll pass in the width and height of the texture
   function drawImage(
-      tex, texWidth, texHeight,
-      dstX, dstY, dstWidth, dstHeight) {
+    tex, texWidth, texHeight,
+    dstX, dstY, dstWidth, dstHeight) {
     if (dstWidth === undefined) {
       dstWidth = texWidth;
     }
@@ -204,4 +162,5 @@ function main() {
   }
 
 }
+
 main();
