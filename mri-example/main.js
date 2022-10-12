@@ -160,16 +160,10 @@ function main() {
     // draw the quad (2 triangles, 6 vertices)
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
+}
 
-  function displayText(message) {
-    document.getElementById("displayResult").textContent = message;
-  }
-
-  document.getElementById("calculateAngle").addEventListener("click", displayText('Angle is 40 degrees'));
-  document.getElementById("calculateDistance").addEventListener("click", displayText('Distance is 4 cm'));
-  document.getElementById("calculateArea").addEventListener("click", displayText('Area is 2 cm^2'));
-  document.getElementById("calculatePerimeter").addEventListener("click", displayText('Perimeter is 8 cm'));
-
+function displayText(message) {
+  document.getElementById("displayResult").textContent = message;
 }
 
 main();
