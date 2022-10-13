@@ -106,6 +106,15 @@ function main() {
       texInfo.width,
       texInfo.height,
       dstX, dstY, dstWidth, dstHeight);
+
+
+    // modality 0 draws lines without loop
+    // modality 1 draws lines with loop (first and last nodes connected)
+    points = 324
+
+    drawLines(points)
+    drawLines(points, 1)
+
   }
 
   function render(time) {
@@ -114,6 +123,30 @@ function main() {
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
+
+  // modality 0 draws lines without loop
+  // modality 1 draws lines with loop (first and last nodes connected)
+  function drawLines(points, modality = 0) {
+    // Clear the canvas
+    gl.clearColor(0.5, 0.5, 0.5, 0.9);
+
+    // Enable the depth test
+    gl.enable(gl.DEPTH_TEST);
+
+    // Clear the color and depth buffer
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Set the view port
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    // Draw the triangle
+    if (modality == 0) {
+      gl.drawArrays(gl.LINE_STRIP, 0, 6);
+    }
+    else {
+      gl.drawArrays(gl.LINE_LOOP, 0, 6);
+    }
+  }
 
   // Unlike images, textures do not have a width and height associated
   // with them so we'll pass in the width and height of the texture
