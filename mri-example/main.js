@@ -9,6 +9,26 @@ function main() {
     return;
   }
 
+  // text box
+  // look up the divcontainer
+  var divContainerElement = document.querySelector("#divcontainer");
+
+  divContainerElement.addEventListener("click", function () { showCoords(event) });
+
+  // make the div
+  var div = document.createElement("div");
+
+  // assign it a CSS class
+  div.className = "floating-div";
+
+  // make a text node for its content
+  var textNode = document.createTextNode("");
+  div.appendChild(textNode);
+
+  // add it to the divcontainer
+  divContainerElement.appendChild(div);
+
+
   var imagePath = 'https://upload.wikimedia.org/wikipedia/commons/b/b2/MRI_of_Human_Brain.jpg';
 
   // setup GLSL program
@@ -106,15 +126,6 @@ function main() {
       texInfo.width,
       texInfo.height,
       dstX, dstY, dstWidth, dstHeight);
-
-
-    // modality 0 draws lines without loop
-    // modality 1 draws lines with loop (first and last nodes connected)
-    points = 324
-
-    drawLines(points)
-    drawLines(points, 1)
-
   }
 
   function render(time) {
@@ -122,26 +133,42 @@ function main() {
 
     requestAnimationFrame(render);
   }
+
   requestAnimationFrame(render);
 
   // modality 0 draws lines without loop
   // modality 1 draws lines with loop (first and last nodes connected)
-  function drawLines(points, modality = 0) {
-    // Clear the canvas
-    gl.clearColor(0.5, 0.5, 0.5, 0.9);
+  function drawLines(x, y, modality = 0) {
+    var x1 = ((x / 500) * 2) - 1;
+    var x2 = ((x + 50) / 500 * 2) - 1;
+    var y1 = ((y / 500) * 2) - 1;
+    var y2 = ((y + 50) / 500 * 2) - 1;
 
-    // Enable the depth test
-    gl.enable(gl.DEPTH_TEST);
+    // console.log(x1, x2, y1, y2);
 
-    // Clear the color and depth buffer
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    const squareBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareBuffer);
 
-    // Set the view port
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    // NOTE: gl.bufferData(gl.ARRAY_BUFFER, ...) will affect
+    // whatever buffer is bound to the `ARRAY_BUFFER` bind point
+    // but so far we only have one buffer. If we had more than one
+    // buffer we'd want to bind that buffer to `ARRAY_BUFFER` first.
+    var colorUniformLocation = gl.getUniformLocation(program, "u_color");
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      x1, y1,
+      x2, y1,
+      x1, y2,
+      x1, y2,
+      x2, y1,
+      x2, y2]), gl.STATIC_DRAW);
+
+    gl.uniform4f(colorUniformLocation, 1, 1, 0, 1);
 
     // Draw the triangle
     if (modality == 0) {
-      gl.drawArrays(gl.LINE_STRIP, 0, 6);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      // gl.drawArrays(gl.LINE_STRIP, 0, 6);
     }
     else {
       gl.drawArrays(gl.LINE_LOOP, 0, 6);
@@ -193,10 +220,31 @@ function main() {
     // draw the quad (2 triangles, 6 vertices)
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
-}
 
-function displayText(message) {
-  document.getElementById("displayResult").textContent = message;
+  function showCoords(ev) {
+    var mousePositionX = ev.clientX;
+    var mousePositionY = ev.clientY;
+    var rect = canvas.getBoundingClientRect();
+    var x = ev.clientX - rect.left;
+    var y = ev.clientY - rect.top;
+
+    // console.log('ev.client x: ' + mousePositionX + ', y: ' + mousePositionY);
+    // console.log('ev.client - rect x: ' + x + ', y: ' + y);
+
+    // position the div in pixel
+    div.style.left = Math.floor(mousePositionX) + "px";
+    div.style.top = Math.floor(mousePositionY) + "px";
+    div.style.color = "white";
+    var textShow = 'x: ' + x + ', y: ' + y;
+    textNode.nodeValue = textShow;
+    displayText(textShow);
+    drawLines(x, y, 0);
+    requestAnimationFrame(render);
+  }
+
+  function displayText(message) {
+    document.getElementById("displayResult").textContent = message;
+  }
 }
 
 main();
