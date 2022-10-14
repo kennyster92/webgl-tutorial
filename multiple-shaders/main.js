@@ -28,7 +28,6 @@ function main() {
   // add it to the divcontainer
   divContainerElement.appendChild(div);
 
-
   var imagePath = 'https://upload.wikimedia.org/wikipedia/commons/b/b2/MRI_of_Human_Brain.jpg';
 
   // setup GLSL program
@@ -72,6 +71,26 @@ function main() {
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
 
+  /**
+   * Init program for line
+   */
+  // setup GLSL program
+  var programLine = webglUtils.createProgramFromScripts(gl, ["drawLine-vertex-shader", "drawLine-fragment-shader"]);
+
+  // look up where the vertex data needs to go.
+  var positionLineLocation = gl.getAttribLocation(programLine, "a_position");
+
+  const vertexData = [
+    0, 1, 0,
+    1, -1, 0,
+    -1, -1, 0,
+  ];
+
+  // Create a buffer.
+  var positionLineBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionLineBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+ 
   // creates a texture info { width: w, height: h, texture: tex }
   // The texture will start with 1x1 pixels and be updated
   // when the image has loaded
@@ -94,8 +113,8 @@ function main() {
     };
     var img = new Image();
     img.addEventListener('load', function () {
-      textureInfo.width = canvas.width; // img.width;
-      textureInfo.height = canvas.height; // img.height;
+      textureInfo.width = canvas.width;
+      textureInfo.height = canvas.height;
 
       gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
@@ -131,6 +150,8 @@ function main() {
   function render(time) {
     draw();
 
+    drawLines(200, 200, 0);
+
     requestAnimationFrame(render);
   }
 
@@ -144,16 +165,7 @@ function main() {
     var y1 = ((y / 500) * 2) - 1;
     var y2 = ((y + 50) / 500 * 2) - 1;
 
-    // console.log(x1, x2, y1, y2);
-
-    const squareBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareBuffer);
-
-    // NOTE: gl.bufferData(gl.ARRAY_BUFFER, ...) will affect
-    // whatever buffer is bound to the `ARRAY_BUFFER` bind point
-    // but so far we only have one buffer. If we had more than one
-    // buffer we'd want to bind that buffer to `ARRAY_BUFFER` first.
-    var colorUniformLocation = gl.getUniformLocation(program, "u_color");
+    gl.useProgram(programLine)
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
       x1, y1,
@@ -163,7 +175,10 @@ function main() {
       x2, y1,
       x2, y2]), gl.STATIC_DRAW);
 
-    gl.uniform4f(colorUniformLocation, 1, 1, 0, 1);
+    // console.log(x1, x2, y1, y2);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionLineBuffer);
+    gl.enableVertexAttribArray(positionLineLocation);
+    gl.vertexAttribPointer(positionLineLocation, 3, gl.FLOAT, false, 0, 0);
 
     // Draw the triangle
     if (modality == 0) {
@@ -238,7 +253,7 @@ function main() {
     var textShow = 'x: ' + x + ', y: ' + y;
     textNode.nodeValue = textShow;
     displayText(textShow);
-    drawLines(x, y, 0);
+    //drawLines(x, y, 0);
     requestAnimationFrame(render);
   }
 

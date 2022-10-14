@@ -1,65 +1,85 @@
 <html>
-<head>
-  <link rel="stylesheet" href="mystyle.css">
-</head>
-<body>
-   <div class="container-horiz">
-      <div class="container">
-         <canvas id="canvas"></canvas>
-         <div id="divcontainer"></div>   
-      </div>
-      <div id="operations-box">
-         <h2>Measures</h2>
-         <ul class="no-bullets">
-            <li class="margin-10">
-               <button onclick="displayText('Angle is 25 degrees');" id="calculateAngle">2D angles</button>
-            </li>
-            <li class="margin-10">
-               <button onclick="displayText('Distance is 12 cm');" id="calculateDistance">Distance</button>
-            </li>
-            <li class="margin-10">
-               <button onclick="displayText('Area is 45 cm^2');" id="calculateArea">Area</button>
-            </li>
-            <li class="margin-10">
-               <button onclick="displayText('Perimeter is 123 cm');" id="calculatePerimeter">Perimeter</button>
-            </li>
-         </ul>
-         <div id="displayResult" class="margin-10">
-            Text to show
+   <head>
+   <link rel="stylesheet" href="mystyle.css">
+   </head>
+   <body>
+      <div class="container-horiz">
+         <div class="container">
+            <canvas id="canvas"></canvas>
+            <div id="divcontainer"></div>   
+         </div>
+         <div id="operations-box">
+            <h2>Measures</h2>
+            <ul class="no-bullets">
+               <li class="margin-10">
+                  <button onclick="displayText('Angle is 25 degrees');" id="calculateAngle">2D angles</button>
+               </li>
+               <li class="margin-10">
+                  <button onclick="displayText('Distance is 12 cm');" id="calculateDistance">Distance</button>
+               </li>
+               <li class="margin-10">
+                  <button onclick="displayText('Area is 45 cm^2');" id="calculateArea">Area</button>
+               </li>
+               <li class="margin-10">
+                  <button onclick="displayText('Perimeter is 123 cm');" id="calculatePerimeter">Perimeter</button>
+               </li>
+            </ul>
+            <div id="displayResult" class="margin-10">
+               Text to show
+            </div>
          </div>
       </div>
-   </div>
 
-   <!-- vertex shader -->
-   <script  id="drawImage-vertex-shader" type="x-shader/x-vertex">
-   attribute vec4 a_position;
-   attribute vec2 a_texcoord;
+      <!-- vertex shader mri image -->
+      <script  id="drawImage-vertex-shader" type="x-shader/x-vertex">
+         attribute vec4 a_position;
+         attribute vec2 a_texcoord;
 
-   uniform mat4 u_matrix;
+         uniform mat4 u_matrix;
 
-   varying vec2 v_texcoord;
+         varying vec2 v_texcoord;
 
-   void main() {
-      gl_Position = u_matrix * a_position;
-      v_texcoord = a_texcoord;
-   }
-   </script>
+         void main() {
+            gl_Position = u_matrix * a_position;
+            v_texcoord = a_texcoord;
+         }
+      </script>
 
-   <script  id="drawImage-fragment-shader" type="x-shader/x-fragment">
-   precision mediump float;
+      <!-- fragment shader mri image -->
+      <script  id="drawImage-fragment-shader" type="x-shader/x-fragment">
+         precision mediump float;
 
-   varying vec2 v_texcoord;
+         varying vec2 v_texcoord;
 
-   uniform sampler2D u_texture;
+         uniform sampler2D u_texture;
 
-   void main() {
-      gl_FragColor = texture2D(u_texture, v_texcoord);
-   }
-   </script>
+         void main() {
+            gl_FragColor = texture2D(u_texture, v_texcoord);
+         }
+      </script>
 
-   <script src="../resources/webgl-utils.js"></script>
-   <script src="../resources/m4.js"></script>
-   <script src="main.js"></script>
 
-</body>
+      <!-- vertex shader line -->
+      <script  id="drawLine-vertex-shader" type="x-shader/x-vertex">
+         attribute vec4 a_position;
+      
+         void main() {
+            gl_Position = a_position;
+         }
+      </script>
+
+      <!-- fragment shader line -->  
+      <script  id="drawLine-fragment-shader" type="x-shader/x-fragment">
+         precision mediump float;
+      
+         void main() {
+            gl_FragColor = vec4(1, 1, 0, 1);
+         }
+      </script>
+
+      <script src="../resources/webgl-utils.js"></script>
+      <script src="../resources/m4.js"></script>
+      <script src="main.js"></script>
+
+   </body>
 </html>
