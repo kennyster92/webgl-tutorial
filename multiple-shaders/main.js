@@ -28,6 +28,7 @@ function main() {
   // add it to the divcontainer
   divContainerElement.appendChild(div);
 
+
   var imagePath = 'https://upload.wikimedia.org/wikipedia/commons/b/b2/MRI_of_Human_Brain.jpg';
 
   // setup GLSL program
@@ -71,31 +72,6 @@ function main() {
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
 
-  /**
-   * Init program for line
-   */
-  // setup GLSL program
-  var programLine = webglUtils.createProgramFromScripts(gl, ["drawLine-vertex-shader", "drawLine-fragment-shader"]);
-
-  // look up where the vertex data needs to go.
-  var positionLineLocation = gl.getAttribLocation(program, "a_position");
-
-  // Create a buffer.
-  var positionLineBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionLineBuffer);
-
-  // Put a unit quad in the buffer
-  var positions = [
-    0, 0,
-    0, 1,
-    1, 0,
-    1, 0,
-    0, 1,
-    1, 1,
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
- 
   // creates a texture info { width: w, height: h, texture: tex }
   // The texture will start with 1x1 pixels and be updated
   // when the image has loaded
@@ -118,8 +94,8 @@ function main() {
     };
     var img = new Image();
     img.addEventListener('load', function () {
-      textureInfo.width = canvas.width;
-      textureInfo.height = canvas.height;
+      textureInfo.width = canvas.width; // img.width;
+      textureInfo.height = canvas.height; // img.height;
 
       gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
@@ -154,9 +130,6 @@ function main() {
 
   function render(time) {
     draw();
-
-
-    // draw Lines()
 
     requestAnimationFrame(render);
   }

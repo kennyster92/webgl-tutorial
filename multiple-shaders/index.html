@@ -30,51 +30,31 @@
       </div>
    </div>
 
-   <!-- vertex shader mri image -->
+   <!-- vertex shader -->
    <script  id="drawImage-vertex-shader" type="x-shader/x-vertex">
-      attribute vec4 a_position;
-      attribute vec2 a_texcoord;
+   attribute vec4 a_position;
+   attribute vec2 a_texcoord;
 
-      uniform mat4 u_matrix;
+   uniform mat4 u_matrix;
 
-      varying vec2 v_texcoord;
+   varying vec2 v_texcoord;
 
-      void main() {
-         gl_Position = u_matrix * a_position;
-         v_texcoord = a_texcoord;
-      }
+   void main() {
+      gl_Position = u_matrix * a_position;
+      v_texcoord = a_texcoord;
+   }
    </script>
 
-   <!-- fragment shader mri image -->
    <script  id="drawImage-fragment-shader" type="x-shader/x-fragment">
-      precision mediump float;
+   precision mediump float;
 
-      varying vec2 v_texcoord;
+   varying vec2 v_texcoord;
 
-      uniform sampler2D u_texture;
+   uniform sampler2D u_texture;
 
-      void main() {
-         gl_FragColor = texture2D(u_texture, v_texcoord);
-      }
-   </script>
-
-
-   <!-- vertex shader line -->
-   <script  id="drawLine-vertex-shader" type="x-shader/x-vertex">
-      attribute vec4 a_position;
-   
-      void main() {
-         gl_Position = a_position;
-      }
-   </script>
-
-   <!-- fragment shader line -->  
-   <script  id="drawLine-fragment-shader" type="x-shader/x-fragment">
-      precision mediump float;
-   
-      void main() {
-         gl_FragColor = vec4(1, 1, 0, 1);
-      }
+   void main() {
+      gl_FragColor = texture2D(u_texture, v_texcoord);
+   }
    </script>
 
    <script src="../resources/webgl-utils.js"></script>
