@@ -9,6 +9,28 @@ function main() {
     return;
   }
 
+  // text box
+  // look up the divcontainer
+  var divContainerElement = document.querySelector("#divcontainer");
+
+  divContainerElement.addEventListener("click", function () { showCoords(event) });
+
+  // make the div
+  var div = document.createElement("div");
+
+  // assign it a CSS class
+  div.className = "floating-div";
+
+  // make a text node for its content
+  var textNode = document.createTextNode("");
+  div.appendChild(textNode);
+
+  // add it to the divcontainer
+  divContainerElement.appendChild(div);
+
+
+  var imagePath = 'https://upload.wikimedia.org/wikipedia/commons/b/b2/MRI_of_Human_Brain.jpg';
+
   // setup GLSL program
   var program = webglUtils.createProgramFromScripts(gl, ["drawImage-vertex-shader", "drawImage-fragment-shader"]);
 
@@ -58,7 +80,7 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D, tex);
     // Fill the texture with a 1x1 blue pixel.
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                  new Uint8Array([0, 0, 255, 255]));
+      new Uint8Array([0, 0, 255, 255]));
 
     // let's assume all images are not a power of 2
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -71,57 +93,20 @@ function main() {
       texture: tex,
     };
     var img = new Image();
-    img.addEventListener('load', function() {
-      textureInfo.width = img.width;
-      textureInfo.height = img.height;
+    img.addEventListener('load', function () {
+      textureInfo.width = canvas.width; // img.width;
+      textureInfo.height = canvas.height; // img.height;
 
       gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     });
-    img.crossOrigin = "anonymous";
+    img.crossOrigin = 'anonymous';
     img.src = url;
 
     return textureInfo;
   }
 
-  var textureInfos = [
-    loadImageAndCreateTextureInfo('https://upload.wikimedia.org/wikipedia/commons/b/b2/MRI_of_Human_Brain.jpg'),
-  ];
-
-  var drawInfos = [];
-  var numToDraw = 1;
-  var speed = 60;
-  for (var ii = 0; ii < numToDraw; ++ii) {
-    var drawInfo = {
-      x: Math.random() * gl.canvas.width,
-      y: Math.random() * gl.canvas.height,
-      dx: Math.random() > 0.5 ? -1 : 1,
-      dy: Math.random() > 0.5 ? -1 : 1,
-      xScale: Math.random() * 0.25 + 0.25,
-      yScale: Math.random() * 0.25 + 0.25,
-      textureInfo: textureInfos[Math.random() * textureInfos.length | 0],
-    };
-    drawInfos.push(drawInfo);
-  }
-
-  function update(deltaTime) {
-    drawInfos.forEach(function(drawInfo) {
-      drawInfo.x += drawInfo.dx * speed * deltaTime;
-      drawInfo.y += drawInfo.dy * speed * deltaTime;
-      if (drawInfo.x < 0) {
-        drawInfo.dx = 1;
-      }
-      if (drawInfo.x >= gl.canvas.width) {
-        drawInfo.dx = -1;
-      }
-      if (drawInfo.y < 0) {
-        drawInfo.dy = 1;
-      }
-      if (drawInfo.y >= gl.canvas.height) {
-        drawInfo.dy = -1;
-      }
-    });
-  }
+  var texInfo = loadImageAndCreateTextureInfo(imagePath);
 
   function draw() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
@@ -131,38 +116,70 @@ function main() {
 
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    drawInfos.forEach(function(drawInfo) {
-      var dstX      = drawInfo.x;
-      var dstY      = drawInfo.y;
-      var dstWidth  = drawInfo.textureInfo.width  * drawInfo.xScale;
-      var dstHeight = drawInfo.textureInfo.height * drawInfo.yScale;
+    var dstX = 0;
+    var dstY = 0;
+    var dstWidth = texInfo.width;
+    var dstHeight = texInfo.height;
 
-      drawImage(
-        drawInfo.textureInfo.texture,
-        drawInfo.textureInfo.width,
-        drawInfo.textureInfo.height,
-        dstX, dstY, dstWidth, dstHeight);
-    });
+    drawImage(
+      texInfo.texture,
+      texInfo.width,
+      texInfo.height,
+      dstX, dstY, dstWidth, dstHeight);
   }
 
-  var then = 0;
   function render(time) {
-    var now = time * 0.001;
-    var deltaTime = Math.min(0.1, now - then);
-    then = now;
-
-    update(deltaTime);
     draw();
 
     requestAnimationFrame(render);
   }
+
   requestAnimationFrame(render);
+
+  // modality 0 draws lines without loop
+  // modality 1 draws lines with loop (first and last nodes connected)
+  function drawLines(x, y, modality = 0) {
+    var x1 = ((x / 500) * 2) - 1;
+    var x2 = ((x + 50) / 500 * 2) - 1;
+    var y1 = ((y / 500) * 2) - 1;
+    var y2 = ((y + 50) / 500 * 2) - 1;
+
+    // console.log(x1, x2, y1, y2);
+
+    const squareBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareBuffer);
+
+    // NOTE: gl.bufferData(gl.ARRAY_BUFFER, ...) will affect
+    // whatever buffer is bound to the `ARRAY_BUFFER` bind point
+    // but so far we only have one buffer. If we had more than one
+    // buffer we'd want to bind that buffer to `ARRAY_BUFFER` first.
+    var colorUniformLocation = gl.getUniformLocation(program, "u_color");
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      x1, y1,
+      x2, y1,
+      x1, y2,
+      x1, y2,
+      x2, y1,
+      x2, y2]), gl.STATIC_DRAW);
+
+    gl.uniform4f(colorUniformLocation, 1, 1, 0, 1);
+
+    // Draw the triangle
+    if (modality == 0) {
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      // gl.drawArrays(gl.LINE_STRIP, 0, 6);
+    }
+    else {
+      gl.drawArrays(gl.LINE_LOOP, 0, 6);
+    }
+  }
 
   // Unlike images, textures do not have a width and height associated
   // with them so we'll pass in the width and height of the texture
   function drawImage(
-      tex, texWidth, texHeight,
-      dstX, dstY, dstWidth, dstHeight) {
+    tex, texWidth, texHeight,
+    dstX, dstY, dstWidth, dstHeight) {
     if (dstWidth === undefined) {
       dstWidth = texWidth;
     }
@@ -204,5 +221,30 @@ function main() {
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
 
+  function showCoords(ev) {
+    var mousePositionX = ev.clientX;
+    var mousePositionY = ev.clientY;
+    var rect = canvas.getBoundingClientRect();
+    var x = ev.clientX - rect.left;
+    var y = ev.clientY - rect.top;
+
+    // console.log('ev.client x: ' + mousePositionX + ', y: ' + mousePositionY);
+    // console.log('ev.client - rect x: ' + x + ', y: ' + y);
+
+    // position the div in pixel
+    div.style.left = Math.floor(mousePositionX) + "px";
+    div.style.top = Math.floor(mousePositionY) + "px";
+    div.style.color = "white";
+    var textShow = 'x: ' + x + ', y: ' + y;
+    textNode.nodeValue = textShow;
+    displayText(textShow);
+    drawLines(x, y, 0);
+    requestAnimationFrame(render);
+  }
+
+  function displayText(message) {
+    document.getElementById("displayResult").textContent = message;
+  }
 }
+
 main();

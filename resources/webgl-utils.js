@@ -29,17 +29,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-(function(root, factory) {  // eslint-disable-line
+(function (root, factory) {  // eslint-disable-line
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define([], function() {
+    define([], function () {
       return factory.call(root);
     });
   } else {
     // Browser globals
     root.webglUtils = factory.call(root);
   }
-}(this, function() {
+}(this, function () {
   'use strict';
 
   const topWindow = this;
@@ -103,7 +103,7 @@
     if (!compiled) {
       // Something went wrong during compilation; get the error
       const lastError = gl.getShaderInfoLog(shader);
-      errFn('*** Error compiling shader \'' + shader + '\':' + lastError + `\n` + shaderSource.split('\n').map((l,i) => `${i + 1}: ${l}`).join('\n'));
+      errFn('*** Error compiling shader \'' + shader + '\':' + lastError + `\n` + shaderSource.split('\n').map((l, i) => `${i + 1}: ${l}`).join('\n'));
       gl.deleteShader(shader);
       return null;
     }
@@ -122,18 +122,18 @@
    * @memberOf module:webgl-utils
    */
   function createProgram(
-      gl, shaders, opt_attribs, opt_locations, opt_errorCallback) {
+    gl, shaders, opt_attribs, opt_locations, opt_errorCallback) {
     const errFn = opt_errorCallback || error;
     const program = gl.createProgram();
-    shaders.forEach(function(shader) {
+    shaders.forEach(function (shader) {
       gl.attachShader(program, shader);
     });
     if (opt_attribs) {
-      opt_attribs.forEach(function(attrib, ndx) {
+      opt_attribs.forEach(function (attrib, ndx) {
         gl.bindAttribLocation(
-            program,
-            opt_locations ? opt_locations[ndx] : ndx,
-            attrib);
+          program,
+          opt_locations ? opt_locations[ndx] : ndx,
+          attrib);
       });
     }
     gl.linkProgram(program);
@@ -141,12 +141,12 @@
     // Check the link status
     const linked = gl.getProgramParameter(program, gl.LINK_STATUS);
     if (!linked) {
-        // something went wrong with the link
-        const lastError = gl.getProgramInfoLog(program);
-        errFn('Error in program linking:' + lastError);
+      // something went wrong with the link
+      const lastError = gl.getProgramInfoLog(program);
+      errFn('Error in program linking:' + lastError);
 
-        gl.deleteProgram(program);
-        return null;
+      gl.deleteProgram(program);
+      return null;
     }
     return program;
   }
@@ -161,7 +161,7 @@
    * @return {WebGLShader} The created shader.
    */
   function createShaderFromScript(
-      gl, scriptId, opt_shaderType, opt_errorCallback) {
+    gl, scriptId, opt_shaderType, opt_errorCallback) {
     let shaderSource = '';
     let shaderType;
     const shaderScript = document.getElementById(scriptId);
@@ -181,8 +181,8 @@
     }
 
     return loadShader(
-        gl, shaderSource, opt_shaderType ? opt_shaderType : shaderType,
-        opt_errorCallback);
+      gl, shaderSource, opt_shaderType ? opt_shaderType : shaderType,
+      opt_errorCallback);
   }
 
   const defaultShaderType = [
@@ -206,11 +206,11 @@
    * @memberOf module:webgl-utils
    */
   function createProgramFromScripts(
-      gl, shaderScriptIds, opt_attribs, opt_locations, opt_errorCallback) {
+    gl, shaderScriptIds, opt_attribs, opt_locations, opt_errorCallback) {
     const shaders = [];
     for (let ii = 0; ii < shaderScriptIds.length; ++ii) {
       shaders.push(createShaderFromScript(
-          gl, shaderScriptIds[ii], gl[defaultShaderType[ii]], opt_errorCallback));
+        gl, shaderScriptIds[ii], gl[defaultShaderType[ii]], opt_errorCallback));
     }
     return createProgram(gl, shaders, opt_attribs, opt_locations, opt_errorCallback);
   }
@@ -231,11 +231,11 @@
    * @memberOf module:webgl-utils
    */
   function createProgramFromSources(
-      gl, shaderSources, opt_attribs, opt_locations, opt_errorCallback) {
+    gl, shaderSources, opt_attribs, opt_locations, opt_errorCallback) {
     const shaders = [];
     for (let ii = 0; ii < shaderSources.length; ++ii) {
       shaders.push(loadShader(
-          gl, shaderSources[ii], gl[defaultShaderType[ii]], opt_errorCallback));
+        gl, shaderSources[ii], gl[defaultShaderType[ii]], opt_errorCallback));
     }
     return createProgram(gl, shaders, opt_attribs, opt_locations, opt_errorCallback);
   }
@@ -244,7 +244,7 @@
    * Returns the corresponding bind point for a given sampler type
    */
   function getBindPointForSamplerType(gl, type) {
-    if (type === gl.SAMPLER_2D)   return gl.TEXTURE_2D;        // eslint-disable-line
+    if (type === gl.SAMPLER_2D) return gl.TEXTURE_2D;        // eslint-disable-line
     if (type === gl.SAMPLER_CUBE) return gl.TEXTURE_CUBE_MAP;  // eslint-disable-line
     return undefined;
   }
@@ -279,87 +279,87 @@
       // Check if this uniform is an array
       const isArray = (uniformInfo.size > 1 && uniformInfo.name.substr(-3) === '[0]');
       if (type === gl.FLOAT && isArray) {
-        return function(v) {
+        return function (v) {
           gl.uniform1fv(location, v);
         };
       }
       if (type === gl.FLOAT) {
-        return function(v) {
+        return function (v) {
           gl.uniform1f(location, v);
         };
       }
       if (type === gl.FLOAT_VEC2) {
-        return function(v) {
+        return function (v) {
           gl.uniform2fv(location, v);
         };
       }
       if (type === gl.FLOAT_VEC3) {
-        return function(v) {
+        return function (v) {
           gl.uniform3fv(location, v);
         };
       }
       if (type === gl.FLOAT_VEC4) {
-        return function(v) {
+        return function (v) {
           gl.uniform4fv(location, v);
         };
       }
       if (type === gl.INT && isArray) {
-        return function(v) {
+        return function (v) {
           gl.uniform1iv(location, v);
         };
       }
       if (type === gl.INT) {
-        return function(v) {
+        return function (v) {
           gl.uniform1i(location, v);
         };
       }
       if (type === gl.INT_VEC2) {
-        return function(v) {
+        return function (v) {
           gl.uniform2iv(location, v);
         };
       }
       if (type === gl.INT_VEC3) {
-        return function(v) {
+        return function (v) {
           gl.uniform3iv(location, v);
         };
       }
       if (type === gl.INT_VEC4) {
-        return function(v) {
+        return function (v) {
           gl.uniform4iv(location, v);
         };
       }
       if (type === gl.BOOL) {
-        return function(v) {
+        return function (v) {
           gl.uniform1iv(location, v);
         };
       }
       if (type === gl.BOOL_VEC2) {
-        return function(v) {
+        return function (v) {
           gl.uniform2iv(location, v);
         };
       }
       if (type === gl.BOOL_VEC3) {
-        return function(v) {
+        return function (v) {
           gl.uniform3iv(location, v);
         };
       }
       if (type === gl.BOOL_VEC4) {
-        return function(v) {
+        return function (v) {
           gl.uniform4iv(location, v);
         };
       }
       if (type === gl.FLOAT_MAT2) {
-        return function(v) {
+        return function (v) {
           gl.uniformMatrix2fv(location, false, v);
         };
       }
       if (type === gl.FLOAT_MAT3) {
-        return function(v) {
+        return function (v) {
           gl.uniformMatrix3fv(location, false, v);
         };
       }
       if (type === gl.FLOAT_MAT4) {
-        return function(v) {
+        return function (v) {
           gl.uniformMatrix4fv(location, false, v);
         };
       }
@@ -368,10 +368,10 @@
         for (let ii = 0; ii < info.size; ++ii) {
           units.push(textureUnit++);
         }
-        return function(bindPoint, units) {
-          return function(textures) {
+        return function (bindPoint, units) {
+          return function (textures) {
             gl.uniform1iv(location, units);
-            textures.forEach(function(texture, index) {
+            textures.forEach(function (texture, index) {
               gl.activeTexture(gl.TEXTURE0 + units[index]);
               gl.bindTexture(bindPoint, texture);
             });
@@ -379,8 +379,8 @@
         }(getBindPointForSamplerType(gl, type), units);
       }
       if (type === gl.SAMPLER_2D || type === gl.SAMPLER_CUBE) {
-        return function(bindPoint, unit) {
-          return function(texture) {
+        return function (bindPoint, unit) {
+          return function (texture) {
             gl.uniform1i(location, unit);
             gl.activeTexture(gl.TEXTURE0 + unit);
             gl.bindTexture(bindPoint, texture);
@@ -390,7 +390,7 @@
       throw ('unknown type: 0x' + type.toString(16)); // we should never get here.
     }
 
-    const uniformSetters = { };
+    const uniformSetters = {};
     const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
 
     for (let ii = 0; ii < numUniforms; ++ii) {
@@ -490,7 +490,7 @@
   function setUniforms(setters, ...values) {
     setters = setters.uniformSetters || setters;
     for (const uniforms of values) {
-      Object.keys(uniforms).forEach(function(name) {
+      Object.keys(uniforms).forEach(function (name) {
         const setter = setters[name];
         if (setter) {
           setter(uniforms[name]);
@@ -513,32 +513,32 @@
     };
 
     function createAttribSetter(index) {
-      return function(b) {
-          if (b.value) {
-            gl.disableVertexAttribArray(index);
-            switch (b.value.length) {
-              case 4:
-                gl.vertexAttrib4fv(index, b.value);
-                break;
-              case 3:
-                gl.vertexAttrib3fv(index, b.value);
-                break;
-              case 2:
-                gl.vertexAttrib2fv(index, b.value);
-                break;
-              case 1:
-                gl.vertexAttrib1fv(index, b.value);
-                break;
-              default:
-                throw new Error('the length of a float constant value must be between 1 and 4!');
-            }
-          } else {
-            gl.bindBuffer(gl.ARRAY_BUFFER, b.buffer);
-            gl.enableVertexAttribArray(index);
-            gl.vertexAttribPointer(
-                index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0);
+      return function (b) {
+        if (b.value) {
+          gl.disableVertexAttribArray(index);
+          switch (b.value.length) {
+            case 4:
+              gl.vertexAttrib4fv(index, b.value);
+              break;
+            case 3:
+              gl.vertexAttrib3fv(index, b.value);
+              break;
+            case 2:
+              gl.vertexAttrib2fv(index, b.value);
+              break;
+            case 1:
+              gl.vertexAttrib1fv(index, b.value);
+              break;
+            default:
+              throw new Error('the length of a float constant value must be between 1 and 4!');
           }
-        };
+        } else {
+          gl.bindBuffer(gl.ARRAY_BUFFER, b.buffer);
+          gl.enableVertexAttribArray(index);
+          gl.vertexAttribPointer(
+            index, b.numComponents || b.size, b.type || gl.FLOAT, b.normalize || false, b.stride || 0, b.offset || 0);
+        }
+      };
     }
 
     const numAttribs = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
@@ -609,7 +609,7 @@
    */
   function setAttributes(setters, attribs) {
     setters = setters.attribSetters || setters;
-    Object.keys(attribs).forEach(function(name) {
+    Object.keys(attribs).forEach(function (name) {
       const setter = setters[name];
       if (setter) {
         setter(attribs[name]);
@@ -686,8 +686,8 @@
    * @memberOf module:webgl-utils
    */
   function createProgramInfo(
-      gl, shaderSources, opt_attribs, opt_locations, opt_errorCallback) {
-    shaderSources = shaderSources.map(function(source) {
+    gl, shaderSources, opt_attribs, opt_locations, opt_errorCallback) {
+    shaderSources = shaderSources.map(function (source) {
       const script = document.getElementById(source);
       return script ? script.text : source;
     });
@@ -785,10 +785,10 @@
    */
   function resizeCanvasToDisplaySize(canvas, multiplier) {
     multiplier = multiplier || 1;
-    const width  = canvas.clientWidth  * multiplier | 0;
+    const width = canvas.clientWidth * multiplier | 0;
     const height = canvas.clientHeight * multiplier | 0;
-    if (canvas.width !== width ||  canvas.height !== height) {
-      canvas.width  = width;
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
       canvas.height = height;
       return true;
     }
@@ -800,7 +800,7 @@
   // don't have to manually compute offsets
   function augmentTypedArray(typedArray, numComponents) {
     let cursor = 0;
-    typedArray.push = function() {
+    typedArray.push = function () {
       for (let ii = 0; ii < arguments.length; ++ii) {
         const value = arguments[ii];
         if (value instanceof Array || (value.buffer && value.buffer instanceof ArrayBuffer)) {
@@ -812,12 +812,12 @@
         }
       }
     };
-    typedArray.reset = function(opt_index) {
+    typedArray.reset = function (opt_index) {
       cursor = opt_index || 0;
     };
     typedArray.numComponents = numComponents;
     Object.defineProperty(typedArray, 'numElements', {
-      get: function() {
+      get: function () {
         return this.length / this.numComponents | 0;
       },
     });
@@ -865,19 +865,19 @@
 
   function createMapping(obj) {
     const mapping = {};
-    Object.keys(obj).filter(allButIndices).forEach(function(key) {
+    Object.keys(obj).filter(allButIndices).forEach(function (key) {
       mapping['a_' + key] = key;
     });
     return mapping;
   }
 
   function getGLTypeForTypedArray(gl, typedArray) {
-    if (typedArray instanceof Int8Array)    { return gl.BYTE; }            // eslint-disable-line
-    if (typedArray instanceof Uint8Array)   { return gl.UNSIGNED_BYTE; }   // eslint-disable-line
-    if (typedArray instanceof Int16Array)   { return gl.SHORT; }           // eslint-disable-line
-    if (typedArray instanceof Uint16Array)  { return gl.UNSIGNED_SHORT; }  // eslint-disable-line
-    if (typedArray instanceof Int32Array)   { return gl.INT; }             // eslint-disable-line
-    if (typedArray instanceof Uint32Array)  { return gl.UNSIGNED_INT; }    // eslint-disable-line
+    if (typedArray instanceof Int8Array) { return gl.BYTE; }            // eslint-disable-line
+    if (typedArray instanceof Uint8Array) { return gl.UNSIGNED_BYTE; }   // eslint-disable-line
+    if (typedArray instanceof Int16Array) { return gl.SHORT; }           // eslint-disable-line
+    if (typedArray instanceof Uint16Array) { return gl.UNSIGNED_SHORT; }  // eslint-disable-line
+    if (typedArray instanceof Int32Array) { return gl.INT; }             // eslint-disable-line
+    if (typedArray instanceof Uint32Array) { return gl.UNSIGNED_INT; }    // eslint-disable-line
     if (typedArray instanceof Float32Array) { return gl.FLOAT; }           // eslint-disable-line
     throw 'unsupported typed array type';
   }
@@ -885,8 +885,8 @@
   // This is really just a guess. Though I can't really imagine using
   // anything else? Maybe for some compression?
   function getNormalizationForTypedArray(typedArray) {
-    if (typedArray instanceof Int8Array)    { return true; }  // eslint-disable-line
-    if (typedArray instanceof Uint8Array)   { return true; }  // eslint-disable-line
+    if (typedArray instanceof Int8Array) { return true; }  // eslint-disable-line
+    if (typedArray instanceof Uint8Array) { return true; }  // eslint-disable-line
     return false;
   }
 
@@ -986,7 +986,7 @@
   function createAttribsFromArrays(gl, arrays, opt_mapping) {
     const mapping = opt_mapping || createMapping(arrays);
     const attribs = {};
-    Object.keys(mapping).forEach(function(attribName) {
+    Object.keys(mapping).forEach(function (attribName) {
       const bufferName = mapping[attribName];
       const origArray = arrays[bufferName];
       if (origArray.value) {
@@ -996,10 +996,10 @@
       } else {
         const array = makeTypedArray(origArray, bufferName);
         attribs[attribName] = {
-          buffer:        createBufferFromTypedArray(gl, array),
+          buffer: createBufferFromTypedArray(gl, array),
           numComponents: origArray.numComponents || array.numComponents || guessNumComponentsFromName(bufferName),
-          type:          getGLTypeForTypedArray(gl, array),
-          normalize:     getNormalizationForTypedArray(array),
+          type: getGLTypeForTypedArray(gl, array),
+          normalize: getNormalizationForTypedArray(array),
         };
       }
     });
@@ -1228,8 +1228,8 @@
    * @memberOf module:webgl-utils
    */
   function createBuffersFromArrays(gl, arrays) {
-    const buffers = { };
-    Object.keys(arrays).forEach(function(key) {
+    const buffers = {};
+    Object.keys(arrays).forEach(function (key) {
       const type = key === 'indices' ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
       const array = makeTypedArray(arrays[key], name);
       buffers[key] = createBufferFromTypedArray(gl, array, type);
@@ -1289,7 +1289,7 @@
     let lastUsedProgramInfo = null;
     let lastUsedBufferInfo = null;
 
-    objectsToDraw.forEach(function(object) {
+    objectsToDraw.forEach(function (object) {
       const programInfo = object.programInfo;
       const bufferInfo = object.bufferInfo;
       let bindBuffers = false;
@@ -1322,8 +1322,8 @@
       }
     }
     return results.length
-        ? results.join(' | ')
-        : `0x${v.toString(16)}`;
+      ? results.join(' | ')
+      : `0x${v.toString(16)}`;
   }
 
   const isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -1333,8 +1333,8 @@
     // Hack for Edge. Edge's WebGL implmentation is crap still and so they
     // only respond to "experimental-webgl". I don't want to clutter the
     // examples with that so his hack works around it
-    HTMLCanvasElement.prototype.getContext = function(origFn) {
-      return function() {
+    HTMLCanvasElement.prototype.getContext = function (origFn) {
+      return function () {
         let args = arguments;
         const type = args[0];
         if (type === 'webgl') {
